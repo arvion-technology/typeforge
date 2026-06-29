@@ -1,0 +1,27 @@
+{
+  "name": "typeforge",
+  "version": "1.0.0",
+  "description": "Generate typed models for TypeScript, Zod, Python and Go from a single JSON Schema document.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "author": "Arvion Technologies <hello@arviontech.net> (https://arviontech.net)",
+  "homepage": "https://arvion-technology.github.io/labs/demos/typeforge/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvion-technology/typeforge.git"
+  },
+  "scripts": {
+    "test": "node --test",
+    "demo": "node scripts/serve.mjs . 4173",
+    "shot": "node scripts/shot.mjs 1440 900 docs/screenshot.png #typescript",
+    "shot:2": "node scripts/shot.mjs 1440 900 docs/screenshot-2.png #python-comment-thread",
+    "verify": "node --test test/ && node scripts/serve-check.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "typeforge": "./scripts/cli.mjs"
+  }
+}
