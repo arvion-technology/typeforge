@@ -1,0 +1,134 @@
+// Go emitter: structs, pointer fields for optional scalars, json tags.
+import { KIND, orderedDefinitions } from "../ir.js";
+import { words, lineComments } from "../format.js";
+
+const GO_ACRONYMS = new Set(["id", "url", "uri", "uuid", "api", "http", "https", "sku", "ip"]);
+
+function goName(name) {
+  return words(name)
+    .map((word) => (GO_ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word[0].toUpperCase() + word.slice(1)))
+    .join("")
+    .replace(/[^A-Za-z0-9]/g, "");
+}
+
+function interfaceType(node) {
+  switch (node.kind) {
+    case KIND.STRING: return "string";
+    case KIND.INTEGER: return "int64";
+    case KIND.NUMBER: return "float64";
+    case KIND.BOOLEAN: return "bool";
+    case KIND.ANY: return "any";
+    case KIND.NULL: return "any";
+    case KIND.ENUM: {
+      const values = node.values;
+      if (values.length && values.every((value) => typeof value === "string")) return "string";
+      if (values.length && values.every((value) => typeof value === "number")) return "float64";
+      return "any";
+    }
+    case KIND.REF: return goName(node.name);
+    case KIND.ARRAY: return `[]${interfaceType(node.items)}`;
+    case KIND.UNION: return "json.RawMessage";
+    case KIND.INTERSECTION: return "json.RawMessage";
+    case KIND.OBJECT: return "map[string]any";
+    default: return "any";
+  }
+}
+
+function goType(node, { pointer = false } = {}) {
+  let base = interfaceType(node);
+  const nullable = node && node.nullable;
+  const baseIsPointerable = node && ![KIND.ARRAY, KIND.UNION, KIND.INTERSECTION, KIND.ANY, KIND.OBJECT].includes(node.kind);
+  if ((pointer || nullable) && baseIsPointerable && !base.startsWith("*")) return `*${base}`;
+  return base;
+}
+
+function emitStruct(name, node, schemaRefs) {
+  const lines = [];
+  if (node.description) lines.push(...lineComments(node.description));
+  lines.push(`type ${goName(name)} struct {`);
+  const usedFields = new Set();
+  const rows = [];
+  for (const property of node.properties) {
+    if (property.description) {
+      for (const line of lineComments(property.description)) lines.push(`\t${line.replace(/^\/\/\s?/, "// ")}`);
+    }
+    let field = goName(property.name) || "Field";
+    while (usedFields.has(field)) field += "Ext";
+    usedFields.add(field);
+    const tag = `${property.name}${property.required && !property.node.nullable ? "" : ",omitempty"}`;
+    rows.push({ field, type: goType(property.node, { pointer: !property.required }), tag });
+  }
+  const width = Math.max(0, ...rows.map((row) => row.field.length));
+  for (const row of rows) {
+    lines.push(`\t${row.field.padEnd(width)} ${row.type} \`json:"${row.tag}"\``);
+  }
+  if (node.additional && !node.properties.length) return [`type ${goName(name)} map[string]${goType(node.additional)}`];
+  if (node.additional) {
+    lines.push(`\tAdditionalProperties map[string]${goType(node.additional)} \`json:"-"\``);
+  }
+  lines.push("}");
+  if (schemaRefs) schemaRefs.add("used");
+  return lines;
+}
+
+function emitEnum(name, node) {
+  const goEnumName = goName(name);
+  const values = node.values;
+  if (!values.length) return [`type ${goEnumName} any`];
+  const base = values.every((value) => typeof value === "string") ? "string" : "float64";
+  const lines = [];
+  if (node.description) lines.push(...lineComments(node.description));
+  lines.push(`type ${goEnumName} ${base}`, "", "const (");
+  const used = new Set();
+  for (const value of values) {
+    let member = goEnumName + goName(String(value));
+    while (used.has(member)) member += "Value";
+    used.add(member);
+    lines.push(`\t${member} ${goEnumName} = ${JSON.stringify(value)}`);
+  }
+  lines.push(")");
+  return lines;
+}
+
+export function emitGo(ir) {
+  const imports = new Set();
+  const body = [];
+
+  for (const definition of orderedDefinitions(ir)) {
+    const { name, node } = definition;
+    if (node.kind === KIND.ENUM) {
+      body.push(...emitEnum(name, node), "");
+    } else if (node.kind === KIND.OBJECT) {
+      body.push(...emitStruct(name, node, imports), "");
+    } else {
+      if (node.description) body.push(...lineComments(node.description));
+      if (node.kind === KIND.UNION || node.kind === KIND.INTERSECTION) imports.add("json");
+      body.push(`type ${goName(name)} = ${goType(node)}`, "");
+    }
+  }
+
+  const rootName = goName(ir.rootName);
+  if (ir.root.kind === KIND.REF && goName(ir.root.name) === rootName) {
+    // root is already a named type
+  } else if (ir.root.kind === KIND.REF) {
+    body.push(`type ${rootName} = ${goName(ir.root.name)}`, "");
+  } else if (ir.root.kind === KIND.OBJECT) {
+    body.push(...emitStruct(ir.rootName, ir.root, imports), "");
+  } else {
+    if (ir.root.kind === KIND.UNION || ir.root.kind === KIND.INTERSECTION) imports.add("json");
+    body.push(`type ${rootName} = ${goType(ir.root)}`, "");
+  }
+
+  if (body.join("\n").includes("json.RawMessage")) imports.add("json");
+
+  const header = [
+    "// Code generated by TypeForge. DO NOT EDIT.",
+    `// Source: ${ir.rootName}. Optional scalars are pointers so omitempty can distinguish zero from absent.`,
+    "",
+    "package models",
+  ];
+  if (imports.has("json")) {
+    header.push("", "import (", '\t"encoding/json"', ")");
+  }
+  return [...header, "", ...body].join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
+}
