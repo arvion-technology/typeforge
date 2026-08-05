@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UserProfile",
+  "description": "A member of a workspace, as returned by GET /users/{id}.",
+  "type": "object",
+  "required": [
+    "id",
+    "email",
+    "role",
+    "address"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Stable identifier, never reused."
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80
+    },
+    "role": {
+      "$ref": "#/$defs/Role"
+    },
+    "address": {
+      "$ref": "#/$defs/Address"
+    },
+    "team": {
+      "$ref": "#/$defs/Team"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8
+    },
+    "lastSeenAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "marketingOptIn": {
+      "type": "boolean",
+      "default": false
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "Role": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "admin",
+        "member",
+        "viewer"
+      ],
+      "description": "Workspace permission level."
+    },
+    "AuditFields": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "Address": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/AuditFields"
+        },
+        {
+          "type": "object",
+          "required": [
+            "line1",
+            "city",
+            "country"
+          ],
+          "properties": {
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "country": {
+              "type": "string",
+              "minLength": 2
+            },
+            "postalCode": {
+              "type": "string",
+              "pattern": "^[0-9]{5}$"
+            }
+          }
+        }
+      ]
+    },
+    "Team": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UserSummary"
+          }
+        }
+      }
+    },
+    "UserSummary": {
+      "type": "object",
+      "required": [
+        "id",
+        "email"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "avatarUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}
