@@ -2,7 +2,7 @@
 <img src="docs/demo.gif" alt="TypeForge demo: JSON Schema editor on the left, generated TypeScript on the right" width="100%" />
 </div>
 
-<sub>Recorded from the live demo — <a href="docs/demo.mp4">MP4</a> · <a href="docs/screenshot.png">static frame</a></sub>
+<sub>Recorded from the live demo, <a href="docs/demo.mp4">MP4</a> · <a href="docs/screenshot.png">static frame</a></sub>
 
 # TypeForge
 
@@ -37,7 +37,7 @@ language-neutral IR once and then renders each target from that IR, so
   - Go structs with json tags, pointer optionals and typed enums.
 - **Flattens `allOf`** into one object when every part is object-like, so
   composed schemas do not become useless intersection types.
-- **Runs in the browser and the CLI** — the same `codegen()` call powers the
+- **Runs in the browser and the CLI**: the same `codegen()` call powers the
   demo and `typeforge schema.json --lang go`.
 
 ## Screenshots
@@ -83,7 +83,7 @@ node scripts/cli.mjs examples/user-profile.json --all
 
 The generated TypeScript and Zod files expect the consumer to have `zod`
 installed; TypeForge itself has no runtime dependencies. The demo does not load
-Zod — it only renders the code as text.
+Zod, it only renders the code as text.
 
 ## How it works
 
@@ -98,7 +98,7 @@ most common bug in schema-to-code tools.
 **Definitions are emitted in dependency order.** `orderedDefinitions` walks the
 IR depth-first and emits a type after the types it references, so the generated
 TypeScript, Python and Go read top-down without forward declarations. When a
-schema is recursive — `Comment.replies: Comment[]` — the cycle is detected and
+schema is recursive, `Comment.replies: Comment[]`, the cycle is detected and
 stopped; Zod wraps that reference in `z.lazy(() => CommentSchema)` so the const
 can refer to itself.
 
@@ -141,7 +141,7 @@ Only JSON input is accepted; YAML schemas would need another parser, and the
 project chose to spend that complexity budget on the IR instead. Remote `$ref`s
 are rejected. Anonymous nested objects become inline types in TypeScript and
 Zod, but Python falls back to `Dict[str, Any]` and Go to
-`map[string]any` — generate a named `$defs` entry when you need a real class or
+`map[string]any`, generate a named `$defs` entry when you need a real class or
 struct. Intersections that are not object-shaped degrade to `json.RawMessage`
 in Go. The output is checked by assertions on strings, not compiled with `tsc`,
 `go build` or `python -m py_compile`, so a reviewer should compile the generated

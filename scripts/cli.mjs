@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// TypeForge CLI — generate models from a JSON Schema file.
+// TypeForge CLI, generate models from a JSON Schema file.
 import { readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
 import { codegen, LANGUAGES } from "../src/index.js";
 
-const USAGE = `typeforge — JSON Schema to TypeScript, Zod, Python and Go
+const USAGE = `typeforge, JSON Schema to TypeScript, Zod, Python and Go
 
 Usage
   typeforge <schema.json> [--lang typescript|zod|python|go] [--out file]

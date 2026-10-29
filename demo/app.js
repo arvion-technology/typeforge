@@ -1,7 +1,7 @@
 // TypeForge demo application.
 //
 // Parsing, the IR and all four emitters come from ../src. This file owns the
-// editor, the language tabs and the copy button — nothing else.
+// editor, the language tabs and the copy button, nothing else.
 import { codegen, LANGUAGES } from "../src/index.js";
 import { SAMPLES, sampleById } from "../src/samples.js";
 import { escapeHtml } from "../src/format.js";
@@ -108,7 +108,7 @@ function showError(message) {
   const box = $("#parse-error");
   box.textContent = message;
   box.classList.remove("hide");
-  $("#parse-status").textContent = "Schema error — showing the last valid output";
+  $("#parse-status").textContent = "Schema error, showing the last valid output";
   $("#parse-status").style.color = "var(--red)";
 }
 
@@ -146,7 +146,7 @@ async function copyCode() {
     toast(`Copied ${output.label} (${output.code.split("\n").length - 1} lines)`, "success");
   } catch {
     A.download(`typeforge.${output.extension}`, output.code);
-    toast("Clipboard blocked — downloaded the file instead", "info");
+    toast("Clipboard blocked, downloaded the file instead", "info");
   }
 }
 

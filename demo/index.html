@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light" />
-  <title>TypeForge — one JSON Schema, four languages</title>
+  <title>TypeForge | one JSON Schema, four languages</title>
   <meta name="description" content="Live JSON Schema codegen: edit a schema and read the generated TypeScript interfaces, Zod validators, Python dataclasses and Go structs side by side." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 9 L91 91 H73 L50 52 L27 91 H9 Z' fill='%23f5c26b'/><circle cx='50' cy='31' r='6.6' fill='%230b0f1a'/><path d='M50 52 L67 90 H33 Z' fill='%230b0f1a'/></svg>" />
   <link rel="stylesheet" href="arvion.css" />
@@ -24,7 +24,7 @@
         </span>
       </a>
       <span class="spacer"></span>
-      <span class="badge gold" id="stats-badge">—</span>
+      <span class="badge gold" id="stats-badge">, </span>
       <span class="badge green"><span class="dot pulse"></span> live codegen</span>
       <a class="btn sm" href="https://github.com/arvion-technology/typeforge" target="_blank" rel="noopener">GitHub ↗</a>
     </header>
@@ -38,8 +38,8 @@
         </div>
         <span class="spacer"></span>
         <div class="row">
-          <span class="badge mono" id="ir-badge">IR —</span>
-          <span class="small muted" id="gen-time">—</span>
+          <span class="badge mono" id="ir-badge">IR, </span>
+          <span class="small muted" id="gen-time">, </span>
         </div>
       </div>
 
@@ -48,7 +48,7 @@
           <div class="card-head">
             <div>
               <div class="card-title">JSON Schema</div>
-              <div class="card-sub">Edit it — the four outputs regenerate as you type</div>
+              <div class="card-sub">Edit it, the four outputs regenerate as you type</div>
             </div>
             <span class="spacer"></span>
             <button class="btn sm ghost" id="reset-sample">Reset</button>
@@ -58,7 +58,7 @@
           <div class="row mt-1">
             <span class="small muted" id="parse-status">Loading…</span>
             <span class="spacer"></span>
-            <span class="small muted mono" id="schema-size">—</span>
+            <span class="small muted mono" id="schema-size">, </span>
           </div>
           <div class="error-box hide" id="parse-error"></div>
         </div>
@@ -67,7 +67,7 @@
           <div class="card-head">
             <div>
               <div class="card-title">Generated code</div>
-              <div class="card-sub" id="code-sub">—</div>
+              <div class="card-sub" id="code-sub">, </div>
             </div>
             <span class="spacer"></span>
             <div class="row" style="gap:6px">
@@ -78,9 +78,9 @@
           <div class="tabs lang-tabs" id="lang-tabs" role="tablist" aria-label="Output language"></div>
           <pre class="code code-view"><code id="code-output"></code></pre>
           <div class="code-footer">
-            <span class="badge" id="lang-badge">—</span>
+            <span class="badge" id="lang-badge">, </span>
             <span class="spacer"></span>
-            <span class="small muted mono" id="line-count">—</span>
+            <span class="small muted mono" id="line-count">, </span>
           </div>
         </div>
       </div>
